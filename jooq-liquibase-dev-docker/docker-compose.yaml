@@ -1,0 +1,21 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:16.3
+    restart: 'no'
+    ports:
+      - 5432:5432
+    volumes:
+      - ./state/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=jooq-test
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: 'no'
+    ports:
+      - 5400:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@db.cz
+      - PGADMIN_DEFAULT_PASSWORD=password

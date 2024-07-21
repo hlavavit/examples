@@ -1,0 +1,14 @@
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+	<changeSet author="@user@" id="@changeset_id@" >
+		<!-- migration documentation https://docs.liquibase.com/change-types/home.html#entities -->
+		<!-- data types mapping https://dba-presents.com/liquibase/216-liquibase-3-6-x-data-types-mapping-table -->
+		<rollback>
+			<!-- delete if not necessary, most liquibase changes don't need/are generated -->
+		</rollback>
+	</changeSet>
+
+</databaseChangeLog>
