@@ -9,8 +9,8 @@
 		<version>3.3.2</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>cz.vh.example</groupId>
-	<artifactId>jooq-liquibase</artifactId>
+	<groupId>cz.vh</groupId>
+	<artifactId>example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>jooq-liquibase</name>
 	<description>Demo project for Spring Boot Liquibase with jooq</description>
@@ -29,6 +29,9 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<db.username>postgres</db.username>
+		<db.password>postgres</db.password>
+
 	</properties>
 	<dependencies>
 		<dependency>
@@ -75,6 +78,11 @@
 			<artifactId>junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -90,6 +98,134 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.gmaven</groupId>
+				<artifactId>groovy-maven-plugin</artifactId>
+				<version>2.1.1</version>
+				<executions>
+					<execution>
+						<id>init-db</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<classpathScope>test</classpathScope>
+							<source><![CDATA[ 
+								db = new org.testcontainers.containers.PostgreSQLContainer("postgres:latest")
+										.withUsername("${db.username}")
+										.withDatabaseName("generating")
+										.withPassword("${db.password}");
+								db.start();
+								project.properties.setProperty('db.url',db.getJdbcUrl());
+								project.properties.setProperty('db.container',db.getContainerId());
+								project.properties.setProperty('db.image',db.getDockerImageName());
+								]]>
+							</source>
+						</configuration>
+					</execution>
+					<execution>
+						<id>discard-db</id>
+						<!-- next phase after generate-sources-->
+						<phase>process-sources</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+						<configuration>
+							<classpathScope>test</classpathScope>
+							<source><![CDATA[ 
+								rr = org.testcontainers.utility.ResourceReaper.instance();
+								rr.stopAndRemoveContainer("${db.container}", "${db.image}");
+								ryukId = rr.ryukContainer.getContainerId();
+								rr.dockerClient.killContainerCmd(ryukId).withSignal("SIGTERM").exec();
+								]]>
+							</source>
+						</configuration>
+					</execution>
+
+				</executions>
+
+				<dependencies>
+					<dependency>
+						<groupId>org.testcontainers</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${testcontainers.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>fill-db</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>update</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<changeLogFile>src/main/resources/db/changelog.xml</changeLogFile>
+
+					<url>${db.url}</url>
+					<username>${db.username}</username>
+					<password>${db.password}</password>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.postgresql</groupId>
+						<artifactId>postgresql</artifactId>
+						<version>${postgresql.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.liquibase.ext</groupId>
+						<artifactId>liquibase-postgresql</artifactId>
+						<version>${liquibase.version}</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.jooq</groupId>
+				<artifactId>jooq-codegen-maven</artifactId>
+
+				<executions>
+					<execution>
+						<id>jooq-codegen</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<configurationFile>jooq-codegen.xml</configurationFile>
+					<jdbc>
+						<url>${db.url}</url>
+						<user>${db.username}</user>
+						<password>${db.password}</password>
+					</jdbc>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-jooq-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>target/generated-sources/jooq</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
@@ -129,6 +265,8 @@
 				</executions>
 			</plugin>
 		</plugins>
+
+
 	</build>
 
 </project>

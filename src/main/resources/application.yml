@@ -3,9 +3,9 @@ spring:
     name: jooq-liquibases
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/jooq-test
-    username: admin
-    password: password
+    #url: jdbc:postgresql://localhost:5432/jooq-test
+    #username: admin
+    #password: password
     hikari:
       schema: public
       connection-timeout: 30000

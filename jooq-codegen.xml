@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+	xmlns="http://www.jooq.org/xsd/jooq-codegen-3.19.8.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.jooq.org/xsd/jooq-codegen-3.19.8.xsd https://www.jooq.org/xsd/jooq-codegen-3.19.8.xsd">
+	<!-- https://www.jooq.org/doc/latest/manual/code-generation/codegen-advanced/ -->
+	<logging>INFO</logging>
+	<!-- 
+	<jdbc>
+		<driver>org.postgresql.Driver</driver>
+		<url>jdbc:postgresql://localhost:5432/jooq-test</url>
+		<user>admin</user>
+		<password>password</password>
+	</jdbc>
+	 -->
+	<generator>
+		<name>org.jooq.codegen.JavaGenerator</name>
+		<database>
+			<name>org.jooq.meta.postgres.PostgresDatabase</name>
+			<excludes>
+				(?i)DATABASECHANGELOG
+				|(?i)DATABASECHANGELOGLOCK
+			</excludes>
+			<inputSchema>public</inputSchema>
+		</database>
+		<generate>
+			<javaTimeTypes>true</javaTimeTypes>
+		</generate>
+		<target>
+			<packageName>cz.vh.jooq.generated</packageName>
+		</target>
+	</generator>
+</configuration>

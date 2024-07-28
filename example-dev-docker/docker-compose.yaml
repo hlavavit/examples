@@ -8,9 +8,9 @@ services:
     volumes:
       - ./state/postgres:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_USER=admin
-      - POSTGRES_DB=jooq-test
+      - POSTGRES_DB=example
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
   pgadmin:
     image: dpage/pgadmin4:latest
     restart: 'no'
@@ -18,4 +18,4 @@ services:
       - 5400:80
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@db.cz
-      - PGADMIN_DEFAULT_PASSWORD=password
+      - PGADMIN_DEFAULT_PASSWORD=postgres
